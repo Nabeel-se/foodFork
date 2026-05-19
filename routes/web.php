@@ -1,0 +1,60 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('app.dashboard');
+    })->name('dashboard');
+
+    Route::get('/browse-recipes', function () {
+        return view('app.placeholder', [
+            'title' => 'FoodFork - Browse Recipes',
+            'active' => 'browse',
+            'topbarTitle' => 'Browse Recipes',
+        ]);
+    })->name('browse-recipes');
+
+    Route::get('/meal-planner', function () {
+        return view('app.placeholder', [
+            'title' => 'FoodFork - Meal Planner',
+            'active' => 'planner',
+            'topbarTitle' => 'Meal Planner',
+        ]);
+    })->name('meal-planner');
+
+    Route::get('/grocery-list', function () {
+        return view('app.placeholder', [
+            'title' => 'FoodFork - Grocery List',
+            'active' => 'grocery',
+            'topbarTitle' => 'Grocery List',
+        ]);
+    })->name('grocery-list');
+
+    Route::get('/add-recipe', function () {
+        return view('app.placeholder', [
+            'title' => 'FoodFork - Add Recipe',
+            'active' => 'add-recipe',
+            'topbarTitle' => 'Add Recipe',
+        ]);
+    })->name('add-recipe');
+
+    Route::get('/business', function () {
+        return view('app.placeholder', [
+            'title' => 'FoodFork - Local Businesses',
+            'active' => 'business',
+            'topbarTitle' => 'Local Businesses',
+        ]);
+    })->name('business');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
