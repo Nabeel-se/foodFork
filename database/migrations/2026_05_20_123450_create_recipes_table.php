@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
-            $table->string('spoonacular_id');
+            $table->string('spoonacular_id')->unique(); // Ensure unique Spoonacular IDs
+            $table->index('spoonacular_id'); // Add an index for faster lookups
             $table->string('title');
-            $table->string('image');
-            $table->text('summary');
-            $table->text('instructions');
-            $table->integer('ready_in_minutes');
-            $table->integer('servings');
+            $table->string('image')->nullable();
+            $table->text('summary')->nullable();
+            $table->text('instructions')->nullable();
+            $table->integer('ready_in_minutes')->nullable();
+            $table->integer('servings')->nullable();
             $table->timestamps();
         });
     }
