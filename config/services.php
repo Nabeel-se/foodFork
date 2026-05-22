@@ -39,6 +39,7 @@ return [
         'key' => env('SPOONACULAR_API_KEY'),
         'endpoint' => env('SPOONACULAR_ENDPOINT', 'https://api.spoonacular.com/recipes/complexSearch'),
         'default_count' => (int) env('SPOONACULAR_DEFAULT_COUNT', 25),
+        'max_offset' => (int) env('SPOONACULAR_MAX_OFFSET', 500),
     ],
 
 ];

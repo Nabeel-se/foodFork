@@ -29,6 +29,8 @@
         </div>
     </div>
 
+    @yield("modals")
+
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');

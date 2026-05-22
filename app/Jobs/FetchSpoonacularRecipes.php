@@ -62,19 +62,32 @@ class FetchSpoonacularRecipes implements ShouldQueue
         }
 
         $endpoint = (string) config('services.spoonacular.endpoint', 'https://api.spoonacular.com/recipes/complexSearch');
-        $defaultCount = (int) config('services.spoonacular.default_count', 5);
+        $defaultCount = max((int) config('services.spoonacular.default_count', 25), 1);
+        $maxOffset = max((int) config('services.spoonacular.max_offset', 500), 0);
+        $offset = $this->resolveAndAdvanceOffset($defaultCount, $maxOffset);
 
         $response = Http::acceptJson()
             ->connectTimeout(10)
             ->timeout(30)
-            ->retry(3, 1000)
+            ->retry(3, 1000, throw: false)
             ->get($endpoint, [
                 'apiKey' => $apiKey,
                 'number' => $defaultCount,
+                'offset' => $offset,
                 'addRecipeInformation' => true,
                 'addRecipeNutrition' => true,
-            ])
-            ->throw();
+            ]);
+
+        if ($response->status() === 402) {
+            Log::warning('Spoonacular sync skipped because daily quota is exhausted.', [
+                'quota_left' => $response->header('x-api-quota-left'),
+                'quota_used' => $response->header('x-api-quota-used'),
+            ]);
+
+            return;
+        }
+
+        $response->throw();
 
         $results = $response->json('results', []);
 
@@ -83,6 +96,21 @@ class FetchSpoonacularRecipes implements ShouldQueue
 
             return;
         }
+
+        $incomingIds = [];
+
+        foreach ($results as $recipe) {
+            if (! is_array($recipe) || ! isset($recipe['id'])) {
+                continue;
+            }
+
+            $incomingIds[] = (string) $recipe['id'];
+        }
+
+        $existingRecipes = Recipe::query()
+            ->whereIn('spoonacular_id', $incomingIds)
+            ->get()
+            ->keyBy('spoonacular_id');
 
         $now = now();
         $rows = [];
@@ -93,21 +121,67 @@ class FetchSpoonacularRecipes implements ShouldQueue
             }
 
             $hydratedRecipe = $this->hydrateRecipeIfNeeded($recipe, $apiKey);
+            $existing = $existingRecipes->get((string) $hydratedRecipe['id']);
 
             $protein = $this->extractNutrient($hydratedRecipe, 'protein');
             $fat = $this->extractNutrient($hydratedRecipe, 'fat');
+
+            $summary = trim((string) ($hydratedRecipe['summary'] ?? ''));
+            $instructions = $this->extractInstructions($hydratedRecipe);
+            $calories = $this->extractCalories($hydratedRecipe);
+            $dishTypes = array_values(array_filter((array) ($hydratedRecipe['dishTypes'] ?? []), 'is_string'));
+            $diets = array_values(array_filter((array) ($hydratedRecipe['diets'] ?? []), 'is_string'));
+
+            if ($existing instanceof Recipe) {
+                if ($summary === '') {
+                    $summary = (string) ($existing->summary ?? '');
+                }
+
+                if ($instructions === null || trim($instructions) === '') {
+                    $existingInstructions = (string) ($existing->instructions ?? '');
+                    $instructions = trim($existingInstructions) !== '' ? $existingInstructions : null;
+                }
+
+                if ($calories === null) {
+                    $calories = is_numeric($existing->calories) ? (int) $existing->calories : null;
+                }
+
+                if ($dishTypes === []) {
+                    $dishTypes = is_array($existing->dish_types) ? $existing->dish_types : [];
+                }
+
+                if ($diets === []) {
+                    $diets = is_array($existing->diets) ? $existing->diets : [];
+                }
+
+                if ($protein['amount'] === null && $existing->protein !== null) {
+                    $protein['amount'] = (float) $existing->protein;
+                }
+
+                if ($protein['unit'] === null && filled($existing->protein_unit)) {
+                    $protein['unit'] = (string) $existing->protein_unit;
+                }
+
+                if ($fat['amount'] === null && $existing->fat !== null) {
+                    $fat['amount'] = (float) $existing->fat;
+                }
+
+                if ($fat['unit'] === null && filled($existing->fat_unit)) {
+                    $fat['unit'] = (string) $existing->fat_unit;
+                }
+            }
 
             $rows[] = [
                 'spoonacular_id' => (string) $hydratedRecipe['id'],
                 'title' => (string) $hydratedRecipe['title'],
                 'image' => (string) ($hydratedRecipe['image'] ?? ''),
-                'summary' => (string) ($hydratedRecipe['summary'] ?? ''),
-                'instructions' => $this->extractInstructions($hydratedRecipe),
+                'summary' => $summary,
+                'instructions' => $instructions,
                 'ready_in_minutes' => (int) ($hydratedRecipe['readyInMinutes'] ?? 0),
                 'servings' => (int) ($hydratedRecipe['servings'] ?? 0),
-                'calories' => $this->extractCalories($hydratedRecipe),
-                'dish_types' => json_encode(array_values(array_filter((array) ($hydratedRecipe['dishTypes'] ?? []), 'is_string'))),
-                'diets' => json_encode(array_values(array_filter((array) ($hydratedRecipe['diets'] ?? []), 'is_string'))),
+                'calories' => $calories,
+                'dish_types' => json_encode($dishTypes),
+                'diets' => json_encode($diets),
                 'protein' => $protein['amount'],
                 'protein_unit' => $protein['unit'],
                 'fat' => $fat['amount'],
@@ -129,7 +203,10 @@ class FetchSpoonacularRecipes implements ShouldQueue
             ['title', 'image', 'summary', 'instructions', 'ready_in_minutes', 'servings', 'calories', 'dish_types', 'diets', 'protein', 'protein_unit', 'fat', 'fat_unit', 'updated_at']
         );
 
-        Log::info('Spoonacular recipe sync completed.', ['count' => count($rows)]);
+        Log::info('Spoonacular recipe sync completed.', [
+            'count' => count($rows),
+            'offset' => $offset,
+        ]);
     }
 
     /**
@@ -240,13 +317,23 @@ class FetchSpoonacularRecipes implements ShouldQueue
             $detailResponse = Http::acceptJson()
                 ->connectTimeout(10)
                 ->timeout(30)
-                ->retry(2, 1000)
+                ->retry(2, 1000, throw: false)
                 ->get("https://api.spoonacular.com/recipes/{$recipeId}/information", [
                     'apiKey' => $apiKey,
                     'includeNutrition' => true,
                 ]);
 
             if (! $detailResponse->successful()) {
+                if ($detailResponse->status() === 402) {
+                    Log::warning('Spoonacular recipe detail hydration skipped due to quota exhaustion.', [
+                        'recipe_id' => $recipeId,
+                        'quota_left' => $detailResponse->header('x-api-quota-left'),
+                        'quota_used' => $detailResponse->header('x-api-quota-used'),
+                    ]);
+
+                    return $recipe;
+                }
+
                 Log::warning('Spoonacular recipe detail hydration failed.', [
                     'recipe_id' => $recipeId,
                     'status' => $detailResponse->status(),
@@ -405,5 +492,33 @@ class FetchSpoonacularRecipes implements ShouldQueue
         }
 
         return (int) round((float) $matches[1]);
+    }
+
+    /**
+     * Resolve current import offset and advance pointer for the next run.
+     */
+    private function resolveAndAdvanceOffset(int $batchSize, int $maxOffset): int
+    {
+        $offsetFile = storage_path('app/spoonacular-import-offset.txt');
+        $offset = 0;
+
+        if (is_file($offsetFile)) {
+            $storedOffset = (int) trim((string) file_get_contents($offsetFile));
+            $offset = max($storedOffset, 0);
+        }
+
+        if ($offset > $maxOffset) {
+            $offset = 0;
+        }
+
+        $nextOffset = $offset + $batchSize;
+
+        if ($nextOffset > $maxOffset) {
+            $nextOffset = 0;
+        }
+
+        file_put_contents($offsetFile, (string) $nextOffset);
+
+        return $offset;
     }
 }
