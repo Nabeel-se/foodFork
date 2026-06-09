@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\BrowseRecipeController;
+use App\Http\Controllers\Admin\MealPlannerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -28,13 +30,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/browse-recipes/tags', [BrowseRecipeController::class, 'tags'])->name('browse-recipes.tags');
     Route::get('/api/browse-recipes', [BrowseRecipeController::class, 'recipes'])->name('browse-recipes.api');
 
-    Route::get('/meal-planner', function () {
-        return view('app.placeholder', [
-            'title' => 'FoodFork - Meal Planner',
-            'active' => 'planner',
-            'topbarTitle' => 'Meal Planner',
-        ]);
-    })->name('meal-planner');
+    Route::get("/meal-planner" , [MealPlannerController::class, 'index'])->name('meal-planner');
+
+    // Route::get('/meal-planner', function () {
+    //     return view('app.placeholder', [
+    //         'title' => 'FoodFork - Meal Planner',
+    //         'active' => 'planner',
+    //         'topbarTitle' => 'Meal Planner',
+    //     ]);
+    // })->name('meal-planner');
 
     Route::get('/grocery-list', function () {
         return view('app.placeholder', [
