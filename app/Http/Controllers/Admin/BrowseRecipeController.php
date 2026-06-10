@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\EmbeddingProvider;
 use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Throwable;
 
 class BrowseRecipeController extends Controller
 {
+    public function __construct(private readonly EmbeddingProvider $embeddingProvider) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -87,6 +92,7 @@ class BrowseRecipeController extends Controller
         $diets = array_values(array_filter((array) $request->query('diets', []), fn (mixed $value): bool => is_string($value) && trim($value) !== ''));
         $search = trim((string) $request->query('search', ''));
         $perPage = min(max((int) $request->query('per_page', 24), 1), 50);
+        $semanticEnabled = $this->canUseSemanticSearch();
 
         $query = Recipe::query()->latest('updated_at');
 
@@ -99,6 +105,50 @@ class BrowseRecipeController extends Controller
         }
 
         if ($search !== '') {
+            $hybridPaginator = null;
+
+            if ($semanticEnabled) {
+                $hybridPaginator = $this->hybridPaginate($query, $search, $perPage, (int) $request->query('page', 1));
+            }
+
+            if ($hybridPaginator !== null) {
+                $recipes = $hybridPaginator->getCollection()->map(function (Recipe $recipe): array {
+                    $dishTypes = is_array($recipe->dish_types) ? $recipe->dish_types : [];
+                    $diets = is_array($recipe->diets) ? $recipe->diets : [];
+
+                    return [
+                        'id' => (string) $recipe->spoonacular_id,
+                        'title' => $recipe->title,
+                        'image' => $recipe->image,
+                        'summary' => trim(strip_tags((string) $recipe->summary)),
+                        'instructions' => $this->splitInstructions((string) $recipe->instructions),
+                        'ready_in_minutes' => $recipe->ready_in_minutes,
+                        'servings' => $recipe->servings,
+                        'calories' => $recipe->calories,
+                        'protein' => $recipe->protein,
+                        'protein_unit' => $recipe->protein_unit,
+                        'fat' => $recipe->fat,
+                        'fat_unit' => $recipe->fat_unit,
+                        'dish_types' => $dishTypes,
+                        'diets' => $diets,
+                        'category' => $this->buildCategory($dishTypes, $diets),
+                    ];
+                })->values();
+
+                return response()->json([
+                    'data' => $recipes,
+                    'meta' => [
+                        'current_page' => $hybridPaginator->currentPage(),
+                        'last_page' => $hybridPaginator->lastPage(),
+                        'per_page' => $hybridPaginator->perPage(),
+                        'total' => $hybridPaginator->total(),
+                        'has_more' => $hybridPaginator->hasMorePages(),
+                        'semantic_enabled' => $semanticEnabled,
+                        'semantic_used' => true,
+                    ],
+                ]);
+            }
+
             $query->where(function ($innerQuery) use ($search): void {
                 $innerQuery
                     ->where('title', 'like', "%{$search}%")
@@ -140,8 +190,172 @@ class BrowseRecipeController extends Controller
                 'per_page' => $paginator->perPage(),
                 'total' => $paginator->total(),
                 'has_more' => $paginator->hasMorePages(),
+                'semantic_enabled' => $semanticEnabled,
+                'semantic_used' => false,
             ],
         ]);
+    }
+
+    private function canUseSemanticSearch(): bool
+    {
+        $enabled = (bool) config('services.embeddings.enabled', true);
+        $driver = (string) config('services.embeddings.driver', 'local');
+
+        if (! $enabled) {
+            return false;
+        }
+
+        if ($driver === 'openai') {
+            return trim((string) config('services.openai.key', '')) !== '';
+        }
+
+        return true;
+    }
+
+    private function hybridPaginate($baseQuery, string $search, int $perPage, int $page): ?LengthAwarePaginator
+    {
+        try {
+            $queryEmbedding = $this->embeddingProvider->embed($this->buildEmbeddingQueryText($search));
+        } catch (Throwable) {
+            return null;
+        }
+
+        if ($queryEmbedding === []) {
+            return null;
+        }
+
+        $candidates = (clone $baseQuery)
+            ->select([
+                'id',
+                'spoonacular_id',
+                'title',
+                'image',
+                'summary',
+                'instructions',
+                'ready_in_minutes',
+                'servings',
+                'calories',
+                'protein',
+                'protein_unit',
+                'fat',
+                'fat_unit',
+                'dish_types',
+                'diets',
+                'embedding',
+                'updated_at',
+            ])
+            ->limit(300)
+            ->get();
+
+        $scoredRecipes = $candidates
+            ->map(function (Recipe $recipe) use ($search, $queryEmbedding): array {
+                $vectorScore = $this->cosineSimilarity($queryEmbedding, is_array($recipe->embedding) ? $recipe->embedding : []);
+                $keywordScore = $this->keywordScore($search, $recipe);
+                $hybridScore = (0.7 * $vectorScore) + (0.3 * $keywordScore);
+
+                return [
+                    'recipe' => $recipe,
+                    'score' => $hybridScore,
+                    'keyword' => $keywordScore,
+                    'vector' => $vectorScore,
+                ];
+            })
+            ->filter(static fn (array $item): bool => $item['keyword'] > 0.0 || $item['vector'] >= 0.2)
+            ->sortByDesc('score')
+            ->values();
+
+        $total = $scoredRecipes->count();
+
+        if ($total === 0) {
+            return new LengthAwarePaginator(collect(), 0, $perPage, $page);
+        }
+
+        $offset = max(($page - 1) * $perPage, 0);
+        $items = $scoredRecipes
+            ->slice($offset, $perPage)
+            ->map(static fn (array $item): Recipe => $item['recipe'])
+            ->values();
+
+        return new LengthAwarePaginator($items, $total, $perPage, $page);
+    }
+
+    private function buildEmbeddingQueryText(string $search): string
+    {
+        return 'recipe search: '.trim($search);
+    }
+
+    private function keywordScore(string $search, Recipe $recipe): float
+    {
+        $term = Str::lower(trim($search));
+
+        if ($term === '') {
+            return 0.0;
+        }
+
+        $title = Str::lower((string) $recipe->title);
+        $summary = Str::lower(strip_tags((string) $recipe->summary));
+        $instructions = Str::lower(strip_tags((string) $recipe->instructions));
+        $dishTypes = Str::lower(implode(' ', is_array($recipe->dish_types) ? $recipe->dish_types : []));
+        $diets = Str::lower(implode(' ', is_array($recipe->diets) ? $recipe->diets : []));
+
+        $score = 0.0;
+
+        if (Str::contains($title, $term)) {
+            $score += 1.0;
+        }
+
+        if (Str::contains($summary, $term)) {
+            $score += 0.6;
+        }
+
+        if (Str::contains($instructions, $term)) {
+            $score += 0.4;
+        }
+
+        if (Str::contains($dishTypes, $term)) {
+            $score += 0.4;
+        }
+
+        if (Str::contains($diets, $term)) {
+            $score += 0.4;
+        }
+
+        return min($score / 2.8, 1.0);
+    }
+
+    /**
+     * @param  list<float|int>  $a
+     * @param  list<float|int>  $b
+     */
+    private function cosineSimilarity(array $a, array $b): float
+    {
+        if ($a === [] || $b === []) {
+            return 0.0;
+        }
+
+        $length = min(count($a), count($b));
+
+        if ($length === 0) {
+            return 0.0;
+        }
+
+        $dot = 0.0;
+        $aNorm = 0.0;
+        $bNorm = 0.0;
+
+        for ($index = 0; $index < $length; $index++) {
+            $left = (float) $a[$index];
+            $right = (float) $b[$index];
+            $dot += $left * $right;
+            $aNorm += $left * $left;
+            $bNorm += $right * $right;
+        }
+
+        if ($aNorm <= 0.0 || $bNorm <= 0.0) {
+            return 0.0;
+        }
+
+        return $dot / (sqrt($aNorm) * sqrt($bNorm));
     }
 
     /**

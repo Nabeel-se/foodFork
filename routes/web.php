@@ -30,7 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/browse-recipes/tags', [BrowseRecipeController::class, 'tags'])->name('browse-recipes.tags');
     Route::get('/api/browse-recipes', [BrowseRecipeController::class, 'recipes'])->name('browse-recipes.api');
 
-    Route::get("/meal-planner" , [MealPlannerController::class, 'index'])->name('meal-planner');
+    Route::get('/meal-planner', [MealPlannerController::class, 'index'])->name('meal-planner');
+    Route::get('/api/meal-planner', [MealPlannerController::class, 'planner'])->name('meal-planner.api');
+    Route::put('/api/meal-planner', [MealPlannerController::class, 'savePlanner'])->name('meal-planner.save');
 
     // Route::get('/meal-planner', function () {
     //     return view('app.placeholder', [

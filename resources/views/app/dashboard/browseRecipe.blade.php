@@ -77,7 +77,17 @@
     <!-- Results Count -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <p style="font-size:.88rem;" id="resultsCount"><strong>24 recipes</strong> found</p>
-        <div class="ai-badge">🤖 AI-curated</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <div class="ai-badge" id="searchModeBadge">🔎 Keyword Search</div>
+            <span
+                aria-label="Search mode legend"
+                title="Search mode legend:
+🔎 Keyword Search = semantic search is disabled.
+🤖 Semantic Search = hybrid vector + keyword ranking is active.
+🧠 Semantic Ready (Fallback) = semantic is enabled but this response used keyword fallback."
+                style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:999px;border:1px solid var(--border);font-size:.72rem;color:var(--text-muted);cursor:help;"
+            >ⓘ</span>
+        </div>
     </div>
 
     <!-- Recipe Grid -->
@@ -137,7 +147,31 @@
             hasMore: false,
             search: '',
             currentView: 'grid',
+            semanticEnabled: false,
+            semanticUsed: false,
         };
+
+        function updateSearchModeBadge() {
+            const badge = document.getElementById('searchModeBadge');
+            if (!badge) {
+                return;
+            }
+
+            if (!state.semanticEnabled) {
+                badge.textContent = '🔎 Keyword Search';
+                badge.title = 'Semantic search is disabled';
+                return;
+            }
+
+            if (state.semanticUsed) {
+                badge.textContent = '🤖 Semantic Search';
+                badge.title = 'Hybrid semantic ranking is active';
+                return;
+            }
+
+            badge.textContent = '🧠 Semantic Ready (Fallback)';
+            badge.title = 'Semantic is enabled but this response used keyword fallback';
+        }
 
         function normalizeLabel(value) {
             return String(value || '').replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -294,17 +328,25 @@
 
             const payload = await response.json();
             const data = Array.isArray(payload.data) ? payload.data : [];
+            const meta = payload.meta || {};
 
             state.recipes = reset ? data : state.recipes.concat(data);
             state.currentRecipes = [...state.recipes];
-            state.currentPage = payload.meta?.current_page || nextPage;
-            state.hasMore = Boolean(payload.meta?.has_more);
+            state.currentPage = meta.current_page || nextPage;
+            state.hasMore = Boolean(meta.has_more);
+            state.semanticEnabled = Boolean(meta.semantic_enabled);
+            state.semanticUsed = Boolean(meta.semantic_used);
+
+            updateSearchModeBadge();
 
             renderRecipes(state.currentRecipes);
         }
 
         async function bootstrapBrowse() {
             try {
+                const initialSearch = new URLSearchParams(window.location.search).get('search');
+                state.search = initialSearch ? initialSearch.trim() : '';
+
                 const tagsResponse = await fetch(BROWSE_API_TAGS_URL, { headers: { Accept: 'application/json' } });
                 if (tagsResponse.ok) {
                     const tagsPayload = await tagsResponse.json();
@@ -328,7 +370,7 @@
         }
 
         function filterRecipes() {
-            const searchInput = document.getElementById('searchInput');
+            const searchInput = document.getElementById('searchInput') || document.getElementById('globalRecipeSearchInput');
             if (!searchInput) {
                 return;
             }

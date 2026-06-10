@@ -1,6 +1,8 @@
 @props([
     'title' => 'Dashboard',
     'showSearch' => true,
+    'searchInputId' => 'globalRecipeSearchInput',
+    'enableDefaultSearchRedirect' => true,
 ])
 
 @php
@@ -20,9 +22,11 @@
         <div class="topbar-search">
             <span>🔍</span>
             <input
+                id="{{ $searchInputId }}"
+                name="recipe_search"
                 type="text"
                 placeholder="Search recipes, ingredients..."
-                onkeydown="if(event.key==='Enter') window.location.href='{{ route('browse-recipes') }}'"
+                onkeydown="if(event.key==='Enter' && {{ $enableDefaultSearchRedirect ? 'true' : 'false' }}) { const query = this.value.trim(); const baseUrl = '{{ route('browse-recipes') }}'; window.location.href = query ? `${baseUrl}?search=${encodeURIComponent(query)}` : baseUrl; }"
             />
         </div>
     @else

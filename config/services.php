@@ -42,4 +42,18 @@ return [
         'max_offset' => (int) env('SPOONACULAR_MAX_OFFSET', 500),
     ],
 
+    'embeddings' => [
+        'enabled' => (bool) env('EMBEDDINGS_ENABLED', true),
+        'driver' => env('EMBEDDINGS_DRIVER', 'local'),
+        'local_dimensions' => (int) env('EMBEDDINGS_LOCAL_DIMENSIONS', 256),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'enable_semantic_search' => (bool) env('OPENAI_ENABLE_SEMANTIC_SEARCH', false),
+        'embedding_model' => env('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
+        'embedding_endpoint' => env('OPENAI_EMBEDDING_ENDPOINT', 'https://api.openai.com/v1/embeddings'),
+        'timeout' => (int) env('OPENAI_TIMEOUT', 15),
+    ],
+
 ];

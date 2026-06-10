@@ -26,6 +26,7 @@ class Recipe extends Model
         'protein_unit',
         'fat',
         'fat_unit',
+        'embedding',
     ];
 
     /**
@@ -38,6 +39,7 @@ class Recipe extends Model
         return [
             'dish_types' => 'array',
             'diets' => 'array',
+            'embedding' => 'array',
             'protein' => 'decimal:2',
             'fat' => 'decimal:2',
         ];
