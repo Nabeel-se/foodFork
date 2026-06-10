@@ -668,7 +668,6 @@
         document.getElementById('addModalRecipeName').textContent = `Adding: ${recipe.emoji} ${recipe.title}`;
 
         params.delete('recipe_id');
-        params.delete('from');
         const query = params.toString();
         const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ''}`;
         window.history.replaceState({}, '', cleanUrl);

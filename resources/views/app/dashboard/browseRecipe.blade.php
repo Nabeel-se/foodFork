@@ -115,7 +115,7 @@
         <div id="modalThumb" style="height:220px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:20px;background:linear-gradient(135deg,#D8F3DC,#B7E4C7);"></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="modalBadges"></div>
         <p id="modalDesc" style="margin-bottom:20px;line-height:1.7;"></p>
-        <h4 style="margin-bottom:12px;">Ingredients</h4>
+        <h4 style="margin-bottom:12px;">Dish Types</h4>
         <ul id="modalIngredients" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;"></ul>
         <h4 style="margin-bottom:12px;">Instructions</h4>
         <ol id="modalInstructions" style="padding-left:18px;display:flex;flex-direction:column;gap:8px;"></ol>
@@ -136,19 +136,21 @@
     <script>
         const BROWSE_API_TAGS_URL = '{{ route('browse-recipes.tags') }}';
         const BROWSE_API_RECIPES_URL = '{{ route('browse-recipes.api') }}';
+        const MEAL_PLANNER_PAGE_URL = '{{ route('meal-planner') }}';
 
         const state = {
             recipes: [],
             currentRecipes: [],
             selectedTagType: 'all',
             selectedTagValue: 'all',
-            perPage: 24,
+            perPage: 4,
             currentPage: 1,
             hasMore: false,
             search: '',
             currentView: 'grid',
             semanticEnabled: false,
             semanticUsed: false,
+            selectedRecipeId: null,
         };
 
         function updateSearchModeBadge() {
@@ -446,6 +448,8 @@
                 return;
             }
 
+            state.selectedRecipeId = String(recipe.id);
+
             document.getElementById('modalTitle').textContent = recipe.title || 'Recipe';
 
             const modalThumb = document.getElementById('modalThumb');
@@ -471,10 +475,10 @@
             document.getElementById('modalBadges').innerHTML = badges.join('');
             document.getElementById('modalDesc').textContent = recipe.summary || 'No summary available.';
 
-            const ingredientsList = (recipe.dish_types || []).concat(recipe.diets || []);
+            const ingredientsList = Array.isArray(recipe.dish_types) ? recipe.dish_types : [];
             document.getElementById('modalIngredients').innerHTML = ingredientsList.length
                 ? ingredientsList.map(item => `<li style="font-size:.88rem;display:flex;align-items:flex-start;gap:6px;"><span style="color:var(--primary);margin-top:2px;">•</span>${escapeHtml(normalizeLabel(item))}</li>`).join('')
-                : '<li style="font-size:.88rem;">No ingredient metadata available.</li>';
+                : '<li style="font-size:.88rem;">No dish types available.</li>';
 
             const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
             document.getElementById('modalInstructions').innerHTML = instructions.length
@@ -504,7 +508,16 @@
         }
 
         function addToPlanner() {
-            showToast('📅 Added to Meal Planner!', 'success');
+            if (!state.selectedRecipeId) {
+                showToast('Select a recipe first.', 'error');
+
+                return;
+            }
+
+            const redirectUrl = new URL(MEAL_PLANNER_PAGE_URL, window.location.origin);
+            redirectUrl.searchParams.set('recipe_id', state.selectedRecipeId);
+            window.location.href = redirectUrl.toString();
+
             closeModal();
         }
 
