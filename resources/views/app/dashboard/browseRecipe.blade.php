@@ -115,8 +115,10 @@
         <div id="modalThumb" style="height:220px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:20px;background:linear-gradient(135deg,#D8F3DC,#B7E4C7);"></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="modalBadges"></div>
         <p id="modalDesc" style="margin-bottom:20px;line-height:1.7;"></p>
-        <h4 style="margin-bottom:12px;">Dish Types</h4>
+        <h4 style="margin-bottom:12px;">Ingredients</h4>
         <ul id="modalIngredients" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;"></ul>
+        <h4 style="margin-bottom:12px;">Diets</h4>
+        <ul id="modalDiets" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;"></ul>
         <h4 style="margin-bottom:12px;">Instructions</h4>
         <ol id="modalInstructions" style="padding-left:18px;display:flex;flex-direction:column;gap:8px;"></ol>
         </div>
@@ -136,7 +138,11 @@
     <script>
         const BROWSE_API_TAGS_URL = '{{ route('browse-recipes.tags') }}';
         const BROWSE_API_RECIPES_URL = '{{ route('browse-recipes.api') }}';
+        const SAVED_RECIPES_INDEX_URL = '{{ route('saved-recipes.index') }}';
+        const SAVED_RECIPES_STORE_URL_TEMPLATE = '{{ route('saved-recipes.store', ['spoonacularId' => '__ID__']) }}';
+        const SAVED_RECIPES_DESTROY_URL_TEMPLATE = '{{ route('saved-recipes.destroy', ['spoonacularId' => '__ID__']) }}';
         const MEAL_PLANNER_PAGE_URL = '{{ route('meal-planner') }}';
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
         const state = {
             recipes: [],
@@ -151,7 +157,83 @@
             semanticEnabled: false,
             semanticUsed: false,
             selectedRecipeId: null,
+            savedRecipeIds: new Set(),
         };
+
+        function savedRecipeUrl(template, recipeId) {
+            return template.replace('__ID__', encodeURIComponent(String(recipeId)));
+        }
+
+        function isRecipeSaved(recipeId) {
+            return state.savedRecipeIds.has(String(recipeId));
+        }
+
+        async function fetchSavedRecipes() {
+            const response = await fetch(SAVED_RECIPES_INDEX_URL, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const payload = await response.json();
+            const recipeIds = Array.isArray(payload?.data?.recipe_ids) ? payload.data.recipe_ids : [];
+
+            state.savedRecipeIds = new Set(recipeIds.map(recipeId => String(recipeId)));
+        }
+
+        function updateModalSaveButtonLabel() {
+            const button = document.querySelector('#recipeModal .btn.btn-primary[onclick="saveRecipe()"]');
+            if (!button) {
+                return;
+            }
+
+            if (!state.selectedRecipeId) {
+                button.textContent = '🔖 Save Recipe';
+                return;
+            }
+
+            button.textContent = isRecipeSaved(state.selectedRecipeId) ? '✅ Saved' : '🔖 Save Recipe';
+        }
+
+        async function toggleSavedRecipe(recipeId) {
+            const normalizedId = String(recipeId || '').trim();
+
+            if (normalizedId === '') {
+                showToast('Select a recipe first.', 'error');
+
+                return;
+            }
+
+            const shouldRemove = isRecipeSaved(normalizedId);
+            const requestUrl = shouldRemove
+                ? savedRecipeUrl(SAVED_RECIPES_DESTROY_URL_TEMPLATE, normalizedId)
+                : savedRecipeUrl(SAVED_RECIPES_STORE_URL_TEMPLATE, normalizedId);
+
+            const response = await fetch(requestUrl, {
+                method: shouldRemove ? 'DELETE' : 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Could not update saved recipe state.');
+            }
+
+            if (shouldRemove) {
+                state.savedRecipeIds.delete(normalizedId);
+                showToast('Recipe removed from saved.', 'success');
+            } else {
+                state.savedRecipeIds.add(normalizedId);
+                showToast('Recipe saved!', 'success');
+            }
+
+            renderRecipes(state.currentRecipes);
+            updateModalSaveButtonLabel();
+        }
 
         function updateSearchModeBadge() {
             const badge = document.getElementById('searchModeBadge');
@@ -273,12 +355,14 @@
                     const caloriesText = recipe.calories ? `${recipe.calories} kcal` : 'N/A kcal';
                     const servingsText = recipe.servings ? recipe.servings : 'N/A';
                     const timeText = formatMinutes(recipe.ready_in_minutes);
+                    const saved = isRecipeSaved(recipe.id);
+                    const bookmarkLabel = saved ? '✅' : '🔖';
 
                     return `
                         <div class="recipe-card" onclick="openRecipe('${escapeHtml(recipe.id)}')">
                             <div class="recipe-thumb" style="background:${thumbBg(category)};">
                                 ${imageUrl ? `<img src="${imageUrl}" alt="${title}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"/>` : '<span style="font-size:2rem;">🍽️</span>'}
-                                <button class="bookmark" onclick="event.stopPropagation();saveToBookmark('${escapeHtml(recipe.id)}')">🔖</button>
+                                <button class="bookmark" onclick="event.stopPropagation();saveToBookmark('${escapeHtml(recipe.id)}')">${bookmarkLabel}</button>
                                 <span class="badge badge-${catColor(category)} category-badge">${escapeHtml(normalizeLabel(category))}</span>
                             </div>
                             <div class="recipe-info">
@@ -348,6 +432,8 @@
             try {
                 const initialSearch = new URLSearchParams(window.location.search).get('search');
                 state.search = initialSearch ? initialSearch.trim() : '';
+
+                await fetchSavedRecipes();
 
                 const tagsResponse = await fetch(BROWSE_API_TAGS_URL, { headers: { Accept: 'application/json' } });
                 if (tagsResponse.ok) {
@@ -475,15 +561,22 @@
             document.getElementById('modalBadges').innerHTML = badges.join('');
             document.getElementById('modalDesc').textContent = recipe.summary || 'No summary available.';
 
-            const ingredientsList = Array.isArray(recipe.dish_types) ? recipe.dish_types : [];
+            const ingredientsList = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
             document.getElementById('modalIngredients').innerHTML = ingredientsList.length
-                ? ingredientsList.map(item => `<li style="font-size:.88rem;display:flex;align-items:flex-start;gap:6px;"><span style="color:var(--primary);margin-top:2px;">•</span>${escapeHtml(normalizeLabel(item))}</li>`).join('')
-                : '<li style="font-size:.88rem;">No dish types available.</li>';
+                ? ingredientsList.map(item => `<li style="font-size:.88rem;display:flex;align-items:flex-start;gap:6px;"><span style="color:var(--primary);margin-top:2px;">•</span>${escapeHtml(item)}</li>`).join('')
+                : '<li style="font-size:.88rem;">No ingredients available.</li>';
+
+            const dietsList = Array.isArray(recipe.diets) ? recipe.diets : [];
+            document.getElementById('modalDiets').innerHTML = dietsList.length
+                ? dietsList.map(item => `<li style="font-size:.88rem;display:flex;align-items:flex-start;gap:6px;"><span style="color:var(--primary);margin-top:2px;">•</span>${escapeHtml(normalizeLabel(item))}</li>`).join('')
+                : '<li style="font-size:.88rem;">No diets available.</li>';
 
             const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
             document.getElementById('modalInstructions').innerHTML = instructions.length
                 ? instructions.map(step => `<li style="font-size:.88rem;line-height:1.6;">${escapeHtml(step)}</li>`).join('')
                 : '<li style="font-size:.88rem;line-height:1.6;">No instructions available for this recipe.</li>';
+
+            updateModalSaveButtonLabel();
 
             document.getElementById('recipeModal').classList.add('active');
         }
@@ -498,13 +591,22 @@
             }
         });
 
-        function saveToBookmark() {
-            showToast('🔖 Recipe saved!', 'success');
+        async function saveToBookmark(recipeId) {
+            try {
+                await toggleSavedRecipe(recipeId);
+            } catch (error) {
+                console.error(error);
+                showToast('Could not save this recipe right now.', 'error');
+            }
         }
 
-        function saveRecipe() {
-            showToast('🔖 Recipe saved to your collection!', 'success');
-            closeModal();
+        async function saveRecipe() {
+            try {
+                await toggleSavedRecipe(state.selectedRecipeId);
+            } catch (error) {
+                console.error(error);
+                showToast('Could not save this recipe right now.', 'error');
+            }
         }
 
         function addToPlanner() {

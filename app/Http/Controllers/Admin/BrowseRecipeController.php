@@ -115,6 +115,7 @@ class BrowseRecipeController extends Controller
                 $recipes = $hybridPaginator->getCollection()->map(function (Recipe $recipe): array {
                     $dishTypes = is_array($recipe->dish_types) ? $recipe->dish_types : [];
                     $diets = is_array($recipe->diets) ? $recipe->diets : [];
+                    $ingredients = is_array($recipe->ingredients) ? $recipe->ingredients : [];
 
                     return [
                         'id' => (string) $recipe->spoonacular_id,
@@ -131,6 +132,7 @@ class BrowseRecipeController extends Controller
                         'fat_unit' => $recipe->fat_unit,
                         'dish_types' => $dishTypes,
                         'diets' => $diets,
+                        'ingredients' => $ingredients,
                         'category' => $this->buildCategory($dishTypes, $diets),
                     ];
                 })->values();
@@ -161,6 +163,7 @@ class BrowseRecipeController extends Controller
 
         $recipes = $paginator->getCollection()->map(function (Recipe $recipe): array {
             $dishTypes = is_array($recipe->dish_types) ? $recipe->dish_types : [];
+            $ingredients = is_array($recipe->ingredients) ? $recipe->ingredients : [];
             $diets = is_array($recipe->diets) ? $recipe->diets : [];
 
             return [
@@ -177,6 +180,7 @@ class BrowseRecipeController extends Controller
                 'fat' => $recipe->fat,
                 'fat_unit' => $recipe->fat_unit,
                 'dish_types' => $dishTypes,
+                'ingredients' => $ingredients,
                 'diets' => $diets,
                 'category' => $this->buildCategory($dishTypes, $diets),
             ];
@@ -241,6 +245,7 @@ class BrowseRecipeController extends Controller
                 'fat_unit',
                 'dish_types',
                 'diets',
+                'ingredients',
                 'embedding',
                 'updated_at',
             ])
@@ -297,6 +302,7 @@ class BrowseRecipeController extends Controller
         $instructions = Str::lower(strip_tags((string) $recipe->instructions));
         $dishTypes = Str::lower(implode(' ', is_array($recipe->dish_types) ? $recipe->dish_types : []));
         $diets = Str::lower(implode(' ', is_array($recipe->diets) ? $recipe->diets : []));
+        $ingredients = Str::lower(implode(' ', is_array($recipe->ingredients) ? $recipe->ingredients : []));
 
         $score = 0.0;
 
@@ -320,7 +326,11 @@ class BrowseRecipeController extends Controller
             $score += 0.4;
         }
 
-        return min($score / 2.8, 1.0);
+        if (Str::contains($ingredients, $term)) {
+            $score += 0.4;
+        }
+
+        return min($score / 3.2, 1.0);
     }
 
     /**

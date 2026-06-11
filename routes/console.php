@@ -10,4 +10,7 @@ Artisan::command('inspire', function () {
 
 Schedule::command('app:fetch-spoonacular-recipes')
     ->dailyAt('02:00')
-    ->withoutOverlapping();
+    ->withoutOverlapping()
+    ->onSuccess(function (): void {
+        Artisan::call('recipes:embeddings-backfill --only-missing');
+    });

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Interfaces\EmbeddingProvider;
 use App\Models\Recipe;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,6 +55,8 @@ class FetchSpoonacularRecipes implements ShouldQueue
     public function handle(): void
     {
         $apiKey = (string) config('services.spoonacular.key');
+        $embeddingsEnabled = (bool) config('services.embeddings.enabled', true);
+        $embeddingProvider = $embeddingsEnabled ? app(EmbeddingProvider::class) : null;
 
         if ($apiKey === '') {
             Log::warning('Spoonacular sync skipped because API key is not configured.');
@@ -108,7 +111,7 @@ class FetchSpoonacularRecipes implements ShouldQueue
         }
 
         $existingRecipes = Recipe::query()
-            ->whereIn('spoonacular_id', $incomingIds)
+            ->whereIn('spoonacular_id', $incomingIds, 'and', false)
             ->get()
             ->keyBy('spoonacular_id');
 
@@ -131,6 +134,8 @@ class FetchSpoonacularRecipes implements ShouldQueue
             $calories = $this->extractCalories($hydratedRecipe);
             $dishTypes = array_values(array_filter((array) ($hydratedRecipe['dishTypes'] ?? []), 'is_string'));
             $diets = array_values(array_filter((array) ($hydratedRecipe['diets'] ?? []), 'is_string'));
+            $ingredients = $this->extractIngredients($hydratedRecipe);
+            $embedding = null;
 
             if ($existing instanceof Recipe) {
                 if ($summary === '') {
@@ -154,6 +159,10 @@ class FetchSpoonacularRecipes implements ShouldQueue
                     $diets = is_array($existing->diets) ? $existing->diets : [];
                 }
 
+                if ($ingredients === []) {
+                    $ingredients = is_array($existing->ingredients) ? $existing->ingredients : [];
+                }
+
                 if ($protein['amount'] === null && $existing->protein !== null) {
                     $protein['amount'] = (float) $existing->protein;
                 }
@@ -169,6 +178,39 @@ class FetchSpoonacularRecipes implements ShouldQueue
                 if ($fat['unit'] === null && filled($existing->fat_unit)) {
                     $fat['unit'] = (string) $existing->fat_unit;
                 }
+
+                if (is_array($existing->embedding) && $existing->embedding !== []) {
+                    $embedding = json_encode($existing->embedding, JSON_THROW_ON_ERROR);
+                }
+            }
+
+            if ($embeddingProvider instanceof EmbeddingProvider) {
+                try {
+                    $embeddingVector = $embeddingProvider->embed($this->buildEmbeddingText(
+                        title: (string) $hydratedRecipe['title'],
+                        summary: $summary,
+                        instructions: $instructions,
+                        dishTypes: $dishTypes,
+                        diets: $diets,
+                        ingredients: $ingredients,
+                        calories: $calories,
+                        proteinAmount: $protein['amount'],
+                        proteinUnit: $protein['unit'],
+                        fatAmount: $fat['amount'],
+                        fatUnit: $fat['unit'],
+                        readyInMinutes: (int) ($hydratedRecipe['readyInMinutes'] ?? 0),
+                        servings: (int) ($hydratedRecipe['servings'] ?? 0),
+                    ));
+
+                    if ($embeddingVector !== []) {
+                        $embedding = json_encode($embeddingVector, JSON_THROW_ON_ERROR);
+                    }
+                } catch (Throwable $exception) {
+                    Log::warning('Recipe embedding generation failed during Spoonacular sync.', [
+                        'recipe_id' => (string) $hydratedRecipe['id'],
+                        'message' => $exception->getMessage(),
+                    ]);
+                }
             }
 
             $rows[] = [
@@ -182,6 +224,8 @@ class FetchSpoonacularRecipes implements ShouldQueue
                 'calories' => $calories,
                 'dish_types' => json_encode($dishTypes),
                 'diets' => json_encode($diets),
+                'ingredients' => json_encode($ingredients),
+                'embedding' => $embedding,
                 'protein' => $protein['amount'],
                 'protein_unit' => $protein['unit'],
                 'fat' => $fat['amount'],
@@ -200,7 +244,7 @@ class FetchSpoonacularRecipes implements ShouldQueue
         Recipe::query()->upsert(
             $rows,
             ['spoonacular_id'],
-            ['title', 'image', 'summary', 'instructions', 'ready_in_minutes', 'servings', 'calories', 'dish_types', 'diets', 'protein', 'protein_unit', 'fat', 'fat_unit', 'updated_at']
+            ['title', 'image', 'summary', 'instructions', 'ready_in_minutes', 'servings', 'calories', 'dish_types', 'diets', 'ingredients', 'embedding', 'protein', 'protein_unit', 'fat', 'fat_unit', 'updated_at']
         );
 
         Log::info('Spoonacular recipe sync completed.', [
@@ -293,6 +337,98 @@ class FetchSpoonacularRecipes implements ShouldQueue
             'amount' => round((float) $matches[1], 2),
             'unit' => isset($matches[2]) && $matches[2] !== '' ? strtolower((string) $matches[2]) : null,
         ];
+    }
+
+    /**
+     * Extract a simplified list of ingredients from Spoonacular extendedIngredients.
+     *
+     * @param  array<string, mixed>  $recipe
+     * @return list<string>
+     */
+    private function extractIngredients(array $recipe): array
+    {
+        $extendedIngredients = $recipe['extendedIngredients'] ?? null;
+
+        if (! is_array($extendedIngredients) || $extendedIngredients === []) {
+            return [];
+        }
+
+        $ingredients = [];
+
+        foreach ($extendedIngredients as $ingredient) {
+            if (! is_array($ingredient)) {
+                continue;
+            }
+
+            $original = trim((string) ($ingredient['original'] ?? ''));
+            if ($original !== '') {
+                $ingredients[] = $original;
+
+                continue;
+            }
+
+            $name = trim((string) ($ingredient['nameClean'] ?? $ingredient['name'] ?? ''));
+            if ($name !== '') {
+                $ingredients[] = $name;
+            }
+        }
+
+        return array_values(array_unique($ingredients));
+    }
+
+    /**
+     * Build text payload used for embedding generation.
+     *
+     * @param  list<string>  $dishTypes
+     * @param  list<string>  $diets
+     * @param  list<string>  $ingredients
+     */
+    private function buildEmbeddingText(
+        string $title,
+        string $summary,
+        ?string $instructions,
+        array $dishTypes,
+        array $diets,
+        array $ingredients,
+        ?int $calories,
+        ?float $proteinAmount,
+        ?string $proteinUnit,
+        ?float $fatAmount,
+        ?string $fatUnit,
+        int $readyInMinutes,
+        int $servings,
+    ): string {
+        $parts = [
+            'title: '.trim($title),
+            'summary: '.trim(strip_tags($summary)),
+            'instructions: '.trim(strip_tags((string) $instructions)),
+            'dish_types: '.$this->normalizeList($dishTypes),
+            'diets: '.$this->normalizeList($diets),
+            'ingredients: '.$this->normalizeList($ingredients),
+            'nutrition: calories='.$this->nullableScalar($calories).', protein='.$this->nullableScalar($proteinAmount).' '.trim((string) $proteinUnit).', fat='.$this->nullableScalar($fatAmount).' '.trim((string) $fatUnit),
+            'meal: ready_in_minutes='.$this->nullableScalar($readyInMinutes).', servings='.$this->nullableScalar($servings),
+        ];
+
+        return implode("\n", $parts);
+    }
+
+    /**
+     * @param  list<string>  $value
+     */
+    private function normalizeList(array $value): string
+    {
+        $items = array_values(array_filter(array_map(static fn (mixed $item): string => trim((string) $item), $value), static fn (string $item): bool => $item !== ''));
+
+        return implode(', ', $items);
+    }
+
+    private function nullableScalar(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return trim((string) $value);
     }
 
     /**

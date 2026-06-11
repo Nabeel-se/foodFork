@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Recipe extends Model
 {
@@ -22,6 +23,7 @@ class Recipe extends Model
         'calories',
         'dish_types',
         'diets',
+        'ingredients',
         'protein',
         'protein_unit',
         'fat',
@@ -39,9 +41,15 @@ class Recipe extends Model
         return [
             'dish_types' => 'array',
             'diets' => 'array',
+            'ingredients' => 'array',
             'embedding' => 'array',
             'protein' => 'decimal:2',
             'fat' => 'decimal:2',
         ];
+    }
+
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_recipes')->withTimestamps();
     }
 }
