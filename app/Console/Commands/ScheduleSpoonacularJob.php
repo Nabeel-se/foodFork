@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\FetchSpoonacularRecipes;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ScheduleSpoonacularJob extends Command
 {
@@ -24,6 +25,7 @@ class ScheduleSpoonacularJob extends Command
     public function handle(): int
     {
         FetchSpoonacularRecipes::dispatch()->onQueue('imports');
+        Log::info('time to fetch spoonacular recipes: '. now()->toDateTimeString());
 
         $this->info('FetchSpoonacularRecipes job has been dispatched.');
 
