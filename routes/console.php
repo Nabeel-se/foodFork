@@ -8,8 +8,14 @@ use Illuminate\Support\Facades\Schedule;
 //     $this->comment(Inspiring::quote());
 // })->purpose('Display an inspiring quote');
 
+// Schedule::command('app:fetch-spoonacular-recipes')
+//     ->dailyAt('02:00')
+//     ->withoutOverlapping()
+//     ->onSuccess(function (): void {
+//         Artisan::call('recipes:embeddings-backfill --only-missing');
+//     });
 Schedule::command('app:fetch-spoonacular-recipes')
-    ->dailyAt('02:00')
+    ->everyMinute()
     ->withoutOverlapping()
     ->onSuccess(function (): void {
         Artisan::call('recipes:embeddings-backfill --only-missing');
