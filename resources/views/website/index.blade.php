@@ -79,12 +79,21 @@
                                         <li>
                                             <a class="" href="#">Contact</a>
                                         </li>
-                                        <li>
-                                            <a class="header-btn-1" href="#">Login</a>
-                                        </li>
-                                        <li>
-                                            <a class="header-btn-2" href="#">Get Started</a>
-                                        </li>
+                                        @if (!auth()->check())
+                                            <li>
+                                                <a class="header-btn-1" href="{{ route('login') }}">Login</a>
+                                            </li>
+                                            <li>
+                                                <a class="header-btn-2" href="{{ route('register') }}">Get Started</a>
+                                            </li>
+                                        @else
+                                            <li>
+                                                <a class="header-btn-1" href="{{ route('dashboard') }}">Dashboard</a>
+                                            </li>
+                                            <li>
+                                                <a class="header-btn-1" href="{{ route('logout') }}">Logout</a>
+                                            </li>
+                                        @endif
                                     </ul>
                                     <div class="navigation-title">
                                         Navigation
@@ -136,15 +145,15 @@
                                         </div>
                                         <div data-swiper-parallax-x="-300">
                                             <div class="buttons-wrapper">
-                                                <a class="button size-2 style-3" href="#">
+                                                <a class="button size-2 style-3" href="{{ route('login') }}">
                                                     <span class="button-wrapper">
-                                                        <span class="icon"><img src="img/icon-4.png" alt=""></span>
+                                                        <span class="icon"><img src="{{ URL::to('img/icon-4.png') }}" alt=""></span>
                                                         <span class="text coolvetica-font">Start Free</span>
                                                     </span>
                                                 </a>
                                                 <a class="button size-2 style-2" href="#">
                                                     <span class="button-wrapper">
-                                                        <span class="icon"><img src="img/icon-1.png" alt=""></span>
+                                                        <span class="icon"><img src="{{ URL::to('img/icon-1.png') }}" alt=""></span>
                                                         <span class="text coolvetica-font">Browse Recipes</span>
                                                     </span>
                                                 </a>
@@ -152,7 +161,7 @@
                                         </div>
                                         <div class="col-xs-b40 col-sm-b80"></div>
                                     </div>
-                                    <img src="./img/web-img/banner-leafs.png" class="banner-leafs img-fluid" alt="" />
+                                    <img src="{{ URL::to('img/web-img/banner-leafs.png') }}" class="banner-leafs img-fluid" alt="" />
                                 </div>
                                 <div class="col-sm-6">
                                     <img src="{{ URL::to('img/web-img/banner-img-1.png') }}" class="img-fluid" alt="" />

@@ -130,6 +130,7 @@ class FetchSpoonacularRecipes implements ShouldQueue
             $fat = $this->extractNutrient($hydratedRecipe, 'fat');
 
             $summary = trim((string) ($hydratedRecipe['summary'] ?? ''));
+            $summary = str_replace('$', '£', $summary);
             $instructions = $this->extractInstructions($hydratedRecipe);
             $calories = $this->extractCalories($hydratedRecipe);
             $dishTypes = array_values(array_filter((array) ($hydratedRecipe['dishTypes'] ?? []), 'is_string'));
