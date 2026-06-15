@@ -5,21 +5,14 @@ use App\Http\Controllers\Admin\MealPlannerController;
 use App\Http\Controllers\Admin\SavedRecipeController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\ProfileController;
-use App\Models\MealPlan;
-use App\Models\Recipe;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/', function () {
-//     return redirect()->route('login');
-// });
-
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('dashboard');
 
     Route::get('/browse-recipes', [BrowseRecipeController::class, 'index'])->name('browse-recipes');
     Route::get('/api/browse-recipes/tags', [BrowseRecipeController::class, 'tags'])->name('browse-recipes.tags');
