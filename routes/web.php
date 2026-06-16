@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/features', [App\Http\Controllers\HomeController::class, 'features'])->name('features');
+Route::get('/recipes', [App\Http\Controllers\HomeController::class, 'recipes'])->name('recipes');
+Route::get('/planner', [App\Http\Controllers\HomeController::class, 'planner'])->name('planner');
+Route::get('/reviews', [App\Http\Controllers\HomeController::class, 'reviews'])->name('reviews');
+Route::get('/contact', [App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
+Route::get('/why-food4fork', [App\Http\Controllers\HomeController::class, 'whyFood4Fork'])->name('why-food4fork');
+Route::get('/partner-with-us', [App\Http\Controllers\HomeController::class, 'partners'])->name('partner-with-us');
+Route::get('/faq', [App\Http\Controllers\HomeController::class, 'faqs'])->name('faq');
+Route::get('/blog', [App\Http\Controllers\HomeController::class, 'blogs'])->name('blog');
+Route::get('/account', [App\Http\Controllers\HomeController::class, 'account'])->name('account');
+Route::get('/terms', [App\Http\Controllers\HomeController::class, 'terms'])->name('terms');
+Route::get('/feedback', [App\Http\Controllers\HomeController::class, 'feedback'])->name('feedback');
 
 Route::middleware('auth')->group(function () {
 

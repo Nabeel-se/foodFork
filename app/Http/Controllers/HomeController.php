@@ -12,10 +12,49 @@ class HomeController extends Controller
      */
     public function index()
     {
-
         return view('website.index', [
             'title' => 'FoodFork - Home',
             'active' => 'home',
+        ]);
+    }
+
+    public function features()
+    {
+        return view('website.features', [
+            'title' => 'FoodFork - Features',
+            'active' => 'features',
+        ]);
+    }
+
+    public function recipes()
+    {
+        return view('website.recipies', [
+            'title' => 'FoodFork - Recipes',
+            'active' => 'recipes',
+        ]);
+    }
+
+    public function planner()
+    {
+        return view('website.planner', [
+            'title' => 'FoodFork - Planner',
+            'active' => 'planner',
+        ]);
+    }
+
+    public function reviews()
+    {
+        return view('website.reviews', [
+            'title' => 'FoodFork - Reviews',
+            'active' => 'reviews',
+        ]);
+    }
+
+    public function contact()
+    {
+        return view('website.contact', [
+            'title' => 'FoodFork - Contact',
+            'active' => 'contact',
         ]);
     }
 

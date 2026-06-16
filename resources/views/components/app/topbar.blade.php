@@ -26,7 +26,7 @@
                 name="recipe_search"
                 type="text"
                 placeholder="Search recipes, ingredients..."
-                onkeydown="if(event.key==='Enter' && {{ $enableDefaultSearchRedirect ? 'true' : 'false' }}) { const query = this.value.trim(); const baseUrl = '{{ route('browse-recipes') }}'; window.location.href = query ? `${baseUrl}?search=${encodeURIComponent(query)}` : baseUrl; }"
+                onkeydown="if(event.key==='Enter' && {{ $enableDefaultSearchRedirect ? 'true' : 'false' }}) window.location.href='{{ route('browse-recipes') }}'"
             />
         </div>
     @else
