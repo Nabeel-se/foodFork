@@ -37,21 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/meal-planner', [MealPlannerController::class, 'planner'])->name('meal-planner.api');
     Route::put('/api/meal-planner', [MealPlannerController::class, 'savePlanner'])->name('meal-planner.save');
 
-    Route::get('/grocery-list', function () {
-        return view('app.placeholder', [
-            'title' => 'FoodFork - Grocery List',
-            'active' => 'grocery',
-            'topbarTitle' => 'Grocery List',
-        ]);
-    })->name('grocery-list');
-
-    Route::get('/add-recipe', function () {
-        return view('app.placeholder', [
-            'title' => 'FoodFork - Add Recipe',
-            'active' => 'add-recipe',
-            'topbarTitle' => 'Add Recipe',
-        ]);
-    })->name('add-recipe');
+    Route::get('/grocery-list', [App\Http\Controllers\Admin\GroceryController::class, 'index'])->name('grocery-list');
+    Route::get('/add-recipe', [App\Http\Controllers\Admin\SavedRecipeController::class, 'addRecipe'])->name('add-recipe');
 
     Route::get('/business', function () {
         return view('app.placeholder', [
@@ -61,9 +48,10 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('business');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // profile routes
+    Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

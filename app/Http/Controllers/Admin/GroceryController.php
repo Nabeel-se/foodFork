@@ -12,7 +12,11 @@ class GroceryController extends Controller
      */
     public function index()
     {
-        //
+        return view('app.dashboard.grocery', [
+            'title' => 'FoodFork - Grocery List',
+            'active' => 'grocery',
+            'topbarTitle' => 'Grocery List',
+        ]);
     }
 
     /**
