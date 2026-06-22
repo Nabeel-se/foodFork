@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\BrowseRecipeController;
+use App\Http\Controllers\Admin\GroceryController;
+use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\MealPlannerController;
 use App\Http\Controllers\Admin\SavedRecipeController;
-use App\Http\Controllers\Admin\HomeController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -24,7 +24,7 @@ Route::get('/feedback', [App\Http\Controllers\HomeController::class, 'feedback']
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::get('/browse-recipes', [BrowseRecipeController::class, 'index'])->name('browse-recipes');
     Route::get('/api/browse-recipes/tags', [BrowseRecipeController::class, 'tags'])->name('browse-recipes.tags');
@@ -37,8 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/meal-planner', [MealPlannerController::class, 'planner'])->name('meal-planner.api');
     Route::put('/api/meal-planner', [MealPlannerController::class, 'savePlanner'])->name('meal-planner.save');
 
-    Route::get('/grocery-list', [App\Http\Controllers\Admin\GroceryController::class, 'index'])->name('grocery-list');
-    Route::get('/add-recipe', [App\Http\Controllers\Admin\SavedRecipeController::class, 'addRecipe'])->name('add-recipe');
+    Route::get('/grocery-list', [GroceryController::class, 'index'])->name('grocery-list');
+    Route::get('/add-recipe', [SavedRecipeController::class, 'addRecipe'])->name('add-recipe');
+
+    Route::post('/add-recipe', [SavedRecipeController::class, 'addRecipePost'])->name('add-recipe.post');
 
     Route::get('/business', function () {
         return view('app.placeholder', [
