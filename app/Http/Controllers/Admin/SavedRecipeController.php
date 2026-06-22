@@ -110,8 +110,6 @@ class SavedRecipeController extends Controller
 
     public function addRecipePost(Request $request)
     {
-        // $request->ingredients = $ingredients;
-        // dd($ingredients);
         // Validate and process the form data here
         // You can use $request->input('field_name') to get the form data
 
@@ -198,9 +196,9 @@ class SavedRecipeController extends Controller
         $ingredients = [];
         foreach ($request->ingredients as $index => $ingredient) {
             $ingredients[] = trim(
-                $ingredient . ' ' .
                 ($request->value[$index] ?? '') . ' ' .
-                ($request->unit[$index] ?? '')
+                ($request->unit[$index] ?? ''). ' ' .
+                $ingredient
             );
         }
 
