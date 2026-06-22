@@ -251,7 +251,7 @@
 
             {{-- Buttons --}}
             <div style="margin-top:20px;display:flex;gap:10px;">
-                <button type="submit" class="btn btn-primary">Update Profile</button>
+                <button type="submit" class="btn btn-primary">Add Recipe</button>
                 <a href="{{ route('dashboard') }}" class="btn btn-outline">Cancel</a>
             </div>
 
