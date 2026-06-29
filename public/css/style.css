@@ -427,7 +427,7 @@ header{position: fixed; left: 0; top: 0; width: 100%; z-index: 10; -webkit-backf
 .header-empty-space{height: 131px;}
 .header-top a, .header-top a .fa, .header-top a b{transition: all .15s; -webkit-transition: all .15s;}
 .header-top a:hover, .header-top a:hover .fa, .header-top a:hover b{color: #b8cd06;}
-#logo{display: inline-block; vertical-align: top; height: 50px; position: relative; top: 50%; margin-top: -23px;}
+#logo{display: inline-block; vertical-align: top; height: 80px; position: relative; top: 50%; margin-top: -39px;}
 #logo img{display: block; max-height: 100%; width: auto;}
 .header-top{font-size: 0; background: #1E5631;}
 .header-top b{font-family: 'Raleway', sans-serif; font-weight: 700; color: #555;}
@@ -485,7 +485,7 @@ header{position: fixed; left: 0; top: 0; width: 100%; z-index: 10; -webkit-backf
 .hamburger-icon.active span:nth-child(2){transform: rotate(-45deg); -webkit-transform: rotate(-45deg); width: 70%; left: 15%; margin-top: -1px;}
 .hamburger-icon.active span:nth-child(3){bottom: auto; top: 50%; margin-top: -1px; transform: rotate(45deg); -webkit-transform: rotate(45deg); width: 70%; left: 15%;}
 
-.header-bottom{height: 80px; padding: 0px 10px; background: #fff; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); font-size: 0;}
+.header-bottom{height: 99px; padding: 0px 10px; background: #fff; -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.1); box-shadow: 0 1px 3px rgba(0,0,0,.1); font-size: 0;}
 .header-bottom *[class*="col"], .header-bottom .row, .header-bottom .container, .header-bottom .container-fluid, .header-bottom .content-margins{height: inherit;}
 @media (min-width: 992px) {
 	.nav-wrapper{height: inherit; display: inline-block; vertical-align: top;}

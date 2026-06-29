@@ -127,7 +127,7 @@
                 <div class="footer-top">
                     <div class="row">
                         <div class="col-xs-6 col-md-3 col-xs-b30 col-md-b0">
-                            <img src="{{ URL::to('img/web-img/logo-footer.png') }}" height="50" alt="" />
+                            <img src="{{ URL::to('img/web-img/logo-footer.png') }}" height="150" alt="" />
                             <div class="empty-space col-xs-b20"></div>
                             <div class="simple-article size-2 footer-desc manrope-font fulltransparent">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper.</div>
                             <div class="empty-space col-xs-b20"></div>
