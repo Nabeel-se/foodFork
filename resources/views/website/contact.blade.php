@@ -7,15 +7,15 @@
 
     <div class="header-empty-space"></div>
 
-    <div class="block-entry fixed-background" style="background-image: url(img/background-26.jpg);">
+    <div class="block-entry fixed-background" style="background-image: url(img/web-img/insperation-bg.png); background-size:cover; background-position:top center;">
         <div class="container">
             <div class="row">
                 <div class="col-sm-6 col-sm-offset-3">
                     <div class="cell-view simple-banner-height text-center">
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
-                        <h1 class="h1 light">contact us</h1>
-                        <div class="title-underline center"><span></span></div>
-                        <div class="simple-article light transparent size-4">In feugiat molestie tortor a malesuada. Etiam a venenatis ipsum. Proin pharetra elit at feugiat commodo vel placerat tincidunt sapien nec</div>
+                        <h1 class="h1 light coolvetica-font sub-heading ">Contact <span class="gradient-text-1">Us</span></h1>
+                        <div class="title-underline center light"><span></span></div>
+                        <div class="simple-article manrope-font light size-4 col-xs-b20">In feugiat molestie tortor a malesuada. Etiam a venenatis ipsum. Proin pharetra elit at feugiat commodo vel placerat tincidunt sapien nec</div>
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
                     </div>
                 </div>
@@ -28,8 +28,8 @@
 
     <div class="container">
         <div class="text-center">
-            <div class="simple-article size-3 grey uppercase col-xs-b5">our contacts</div>
-            <div class="h2">we ready for your questions</div>
+            <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3 letter-sp-1">our contacts</div>
+            <div class="h2 text-semi-dark coolvetica-font sub-heading">We Are Ready For Your <span class="gradient-text-2">Questions</span></div>
             <div class="title-underline center"><span></span></div>
         </div>
     </div>
@@ -40,59 +40,54 @@
         <div class="row">
             <div class="col-sm-3">
                 <div class="icon-description-shortcode style-1">
-                    <img class="icon" src="img/icon-25.png" alt="">
-                    <div class="title h6">address</div>
-                    <div class="description simple-article size-2">test address</div>
+                    <h2 class="h2 gradient-text-1 col-sm-b15"><i class="fa fa-map-marker"></i></h2>
+                    <div class="title h4 coolvetica-font letter-sp-1">address</div>
+                    <div class="description simple-article size-4 manrope-font text-dark">London, United Kingdom</div>
                 </div>
             </div>
             <div class="col-sm-3">
                 <div class="icon-description-shortcode style-1">
-                    <img class="icon" src="img/icon-23.png" alt="">
-                    <div class="title h6">phone</div>
-                    <div class="description simple-article size-2" style="line-height: 26px;">
-                        <a href="tel:+35235551238745">+44 123 1234 1234</a>
-                        <br/>
-                        <a href="tel:+35235557585238">+44 123 1234 5678</a>
-                    </div>
+                    <h2 class="h2 gradient-text-1 col-sm-b15"><i class="fa fa-phone"></i></h2>
+                    <div class="title h4 coolvetica-font letter-sp-1">Phone</div>
+                    <div class="description simple-article size-4 manrope-font text-dark"><a href="tel:+44 1234 5678">+44 1234 5678</a></div>
                 </div>
             </div>
             <div class="col-sm-3">
                 <div class="icon-description-shortcode style-1">
-                    <img class="icon" src="img/icon-28.png" alt="">
-                    <div class="title h6">email</div>
-                    <div class="description simple-article size-2"><a href="mailto:test@example.com">test@example.com</a></div>
+                    <h2 class="h2 gradient-text-1 col-sm-b15"><i class="fa fa-envelope"></i></h2>
+                    <div class="title h4 coolvetica-font letter-sp-1">Email</div>
+                    <div class="description simple-article size-4 manrope-font text-dark"><a href="mailto:support@foodfork.com">support@foodfork.com</a></div>
                 </div>
             </div>
             <div class="col-sm-3">
                 <div class="icon-description-shortcode style-1">
-                    <img class="icon" src="img/icon-26.png" alt="">
-                    <div class="title h6">Follow us</div>
-                    <div class="follow light">
-                        <a class="entry" href="#"><i class="fa fa-facebook"></i></a>
-                        <a class="entry" href="#"><i class="fa fa-twitter"></i></a>
-                        <a class="entry" href="#"><i class="fa fa-linkedin"></i></a>
-                        <a class="entry" href="#"><i class="fa fa-google-plus"></i></a>
+                    <h2 class="h2 gradient-text-1 col-sm-b15"><i class="fa fa-globe"></i></h2>
+                    <div class="title h4 coolvetica-font letter-sp-1">Links</div>
+                    <div class="description simple-article size-4 manrope-font text-dark d-flex justify-content-center">
+                        <a class="entry mx-3" href="#"><i class="fa fa-facebook"></i></a>
+                        <a class="entry mx-3" href="#"><i class="fa fa-instagram"></i></a>
+                        <a class="entry mx-3" href="#"><i class="fa fa-youtube-play"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="empty-space col-xs-b25 col-sm-b50"></div>
+    <div class="empty-space col-xs-b15 col-sm-b20"></div>
 
-    <div class="container">
+    {{-- <div class="container">
         <div class="map-wrapper">
             <div id="map-canvas" class="full-width" data-lat="34.0151244" data-lng="-118.4729871" data-zoom="14"></div>
         </div>
         <div class="addresses-block hidden">
             <a class="marker" data-lat="34.0151244" data-lng="-118.4729871" data-string="1. Here is some address or email or phone or something else..."></a>
         </div>
-    </div>
+    </div> --}}
 
     <div class="empty-space col-xs-b25 col-sm-b50"></div>
 
     <div class="container">
-        <h4 class="h4 text-center col-xs-b25">have a questions?</h4>
+        {{-- <h4 class="h4 text-center col-xs-b25">have a questions?</h4> --}}
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <form class="contact-form">
@@ -117,7 +112,7 @@
                                 <div class="button size-2 style-3">
                                     <span class="button-wrapper">
                                         <span class="icon"><img src="img/icon-4.png" alt=""></span>
-                                        <span class="text">send message</span>
+                                        <span class="text coolvetica-font">Send Message</span>
                                     </span>
                                     <input type="submit"/>
                                 </div>

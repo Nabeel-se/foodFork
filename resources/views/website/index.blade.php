@@ -12,7 +12,7 @@
                <div class="swiper-wrapper">
                    <div class="swiper-slide" style="background-image: url({{ URL::to('img/web-img/banner-2.png') }});">
                         <div class="container">
-                            <div class="row">
+                            <div class="row vertical-aligned-columns">
                                 <div class="col-sm-6">
                                     <div class="cell-view page-height">
                                         <div class="col-xs-b40 col-sm-b80"></div>
@@ -59,7 +59,7 @@
                    </div>
                    <div class="swiper-slide" style="background-image: url({{ URL::to('img/web-img/banner-2.png') }});">
                         <div class="container">
-                            <div class="row">
+                            <div class="row vertical-aligned-columns">
                                 <div class="col-sm-6">
                                     <div class="cell-view page-height">
                                         <div class="col-xs-b40 col-sm-b80"></div>

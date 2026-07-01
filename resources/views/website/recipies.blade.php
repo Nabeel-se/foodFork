@@ -6,15 +6,15 @@
 @section('content')
     <div class="header-empty-space"></div>
 
-    <div class="block-entry fixed-background" style="background-image: url(img/background-22.jpg);">
+    <div class="block-entry fixed-background" style="background-image: url(img/web-img/recipie-4.png);">
         <div class="container">
             <div class="row">
                 <div class="col-sm-6 col-sm-offset-3">
                     <div class="cell-view simple-banner-height text-center">
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
-                        <h1 class="h1 light">our services</h1>
+                        <h1 class="h1 text-white coolvetica-font lowercase letter-sp-1">Our <span class="gradient-text-1">Recipes</span></h1>
                         <div class="title-underline center"><span></span></div>
-                        <div class="simple-article light transparent size-4">In feugiat molestie tortor a malesuada. Etiam a venenatis ipsum. Proin pharetra elit at feugiat commodo vel placerat tincidunt sapien nec</div>
+                        <div class="simple-article manrope-font light size-4 col-xs-b20">In feugiat molestie tortor a malesuada. Etiam a venenatis ipsum. Proin pharetra elit at feugiat commodo vel placerat tincidunt sapien nec</div>
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
                     </div>
                 </div>
@@ -30,8 +30,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 col-md-offset-3 text-center">
-                    <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3">Popular recipes</div>
-                    <h1 class="h1 text-dark coolvetica-font sub-heading ">Fresh  <span class="gradient-text-1">ideas </span> for every part of the day.</h1>
+                    <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3 letter-sp-1">Popular recipes</div>
+                    <h1 class="h1 text-dark coolvetica-font sub-heading ">Fresh  <span class="gradient-text-2">ideas </span> for every part of the day.</h1>
                 </div>
             </div>
             <div class="empty-space col-xs-b35 col-md-b50"></div>

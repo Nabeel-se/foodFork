@@ -45,7 +45,7 @@ p{
 .banner-sub-heading{
     color: #000;
     font-size: 18px !important;
-    font-weight: 100 !important;   
+    font-weight: 100 !important;
 }
 .text-dark{
     color: #000;
@@ -337,4 +337,24 @@ table th {
 }
 .footer-desc{
     line-height: 25px !important;
+}
+.banner-custom-bg{
+    background-color: #f6ffe8;
+}
+.mx-3{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.simple-input, .SumoSelect > .CaptionCont, .simple-input:focus {
+    font-size: 14px;
+    color: #555;
+    height: 50px;
+    line-height: 48px;
+    padding: 0 23px;
+    width: 100%;
+    border: 1px #4c9a2a solid;
+    border-radius: 26px;
+    -webkit-border-radius: 10px;
+    transition: all .15s;
+    -webkit-transition: all .15s;
 }
