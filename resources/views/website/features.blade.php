@@ -15,7 +15,7 @@
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
                         <h1 class="h1 text-dark coolvetica-font banner-heading">Our <span class="gradient-text-1">Features</span></h1>
                         <div class="title-underline center"><span></span></div>
-                        <div class="simple-article transparent size-4 manrope-font text-dark">In feugiat molestie tortor a malesuada. Etiam a venenatis ipsum. Proin pharetra elit at feugiat commodo vel placerat tincidunt sapien nec</div>
+                        <div class="simple-article transparent size-4 manrope-font text-dark">Food4Fork helps you discover delicious recipes, organise your shopping, reduce food waste, and share your favourite dishes with friends and family. Whether you’re planning meals for the week or looking for inspiration tonight, Food4Fork has you covered.</div>
                         <div class="empty-space col-xs-b35 col-sm-b70"></div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
             <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3 letter-sp-1">our Features</div>
             <div class="h1 text-semi-dark coolvetica-font sub-heading">What <span class="gradient-text-2">We</span> Offer</div>
             <div class="title-underline center"><span></span></div>
-            <p class="simple-article transparent size-4 manrope-font text-dark">Etiam mollis tristique mi ac ultrices. Morbi vel neque eget lacus</p>
+            <p class="simple-article transparent size-4 manrope-font text-dark">Food4Fork helps you discover delicious recipes, organise your shopping, reduce food waste, and share your favourite dishes with friends and family. Whether you’re planning meals for the week or looking for inspiration tonight, Food4Fork has you covered.</p>
         </div>
     </div>
 

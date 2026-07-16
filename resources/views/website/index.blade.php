@@ -173,7 +173,7 @@
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3 text-center">
                         <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3">Popular recipes</div>
-                        <h1 class="h1 text-dark coolvetica-font sub-heading ">Fresh  <span class="gradient-text-1">ideas </span> for every part of the day.</h1>
+                        <h1 class="h1 text-dark coolvetica-font sub-heading ">Recipes <span class="gradient-text-1">you’ll love, </span>every single day</h1>
                     </div>
                 </div>
                 <div class="empty-space col-xs-b35 col-md-b50"></div>
