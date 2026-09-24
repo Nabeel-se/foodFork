@@ -179,7 +179,7 @@
                     <div class="post-slide">
                         <div class="post-img">
                             {{-- <img src="https://images.unsplash.com/photo-1596265371388-43edbaadab94?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=301&ixid=eyJhcHBfaWQiOjF9&ixlib=rb-1.2.1&q=80&w=501" alt=""> --}}
-                            <img class="img-responsive img-fluid" src="{{ URL::to('uploads/add/add.jfif') }}" alt="">
+                            <img class="img-responsive img-fluid" src="{{ URL::to('img/add/add.jfif') }}" alt="">
                             <a href="#" class="over-layer"><i class="fa fa-link"></i></a>
                         </div>
                         <div class="post-content">
