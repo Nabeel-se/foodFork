@@ -164,6 +164,77 @@
 
         <div class="empty-space col-xs-b35 col-md-b70"></div>
 
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 text-center">
+                    <div class="simple-article uppercase banner-sub-heading col-sm-b20 coolvetica-font transparent size-3">Feature Advertisment</div>
+                    <h1 class="h1 text-dark coolvetica-font sub-heading ">Explore <span class="gradient-text-1">products, </span>and offers from our featured partners</h1>
+                </div>
+            </div>
+            <div class="empty-space col-xs-b35 col-md-b50"></div>
+            <div class="row">
+                <div class="col-md-12">
+                <div id="news-slider" class="owl-carousel">
+                    <div class="post-slide">
+                        <div class="post-img">
+                            {{-- <img src="https://images.unsplash.com/photo-1596265371388-43edbaadab94?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=301&ixid=eyJhcHBfaWQiOjF9&ixlib=rb-1.2.1&q=80&w=501" alt=""> --}}
+                            <img class="img-responsive img-fluid" src="{{ URL::to('uploads/add/add.jfif') }}" alt="">
+                            <a href="#" class="over-layer"><i class="fa fa-link"></i></a>
+                        </div>
+                        <div class="post-content">
+                            <h3 class="post-title">
+                            <a class="coolvetica-font lowercase mb-3 " href="#" style="font-size: 1.2rem; line-height: 2;">KitchenCraft</a>
+                            </h3>
+                            <p class="manrope-font">Smart kitchen essentials designed to make everyday cooking easier.</p>
+                        </div>
+                    </div>
+                    <div class="post-slide">
+                        <div class="post-img">
+                            {{-- <img src="https://images.unsplash.com/photo-1596265371388-43edbaadab94?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=301&ixid=eyJhcHBfaWQiOjF9&ixlib=rb-1.2.1&q=80&w=501" alt=""> --}}
+                            <img class="img-responsive img-fluid" src="{{ URL::to('uploads/add/add.jfif') }}" alt="">
+                            <a href="#" class="over-layer"><i class="fa fa-link"></i></a>
+                        </div>
+                        <div class="post-content">
+                            <h3 class="post-title">
+                            <a class="coolvetica-font lowercase mb-3 " href="#" style="font-size: 1.2rem; line-height: 2;">FreshNest</a>
+                            </h3>
+                            <p class="manrope-font">Quality ingredients and wholesome food products for your kitchen.</p>
+                        </div>
+                    </div>
+                    <div class="post-slide">
+                        <div class="post-img">
+                            {{-- <img src="https://images.unsplash.com/photo-1596265371388-43edbaadab94?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=301&ixid=eyJhcHBfaWQiOjF9&ixlib=rb-1.2.1&q=80&w=501" alt=""> --}}
+                            <img class="img-responsive img-fluid" src="{{ URL::to('uploads/add/add.jfif') }}" alt="">
+                            <a href="#" class="over-layer"><i class="fa fa-link"></i></a>
+                        </div>
+                        <div class="post-content">
+                            <h3 class="post-title">
+                            <a class="coolvetica-font lowercase mb-3 " href="#" style="font-size: 1.2rem; line-height: 2;">BakeBloom</a>
+                            </h3>
+                            <p class="manrope-font">Premium baking ingredients for delicious homemade treats.</p>
+                        </div>
+                    </div>
+                    <div class="post-slide">
+                        <div class="post-img">
+                            {{-- <img src="https://images.unsplash.com/photo-1596265371388-43edbaadab94?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=301&ixid=eyJhcHBfaWQiOjF9&ixlib=rb-1.2.1&q=80&w=501" alt=""> --}}
+                            <img class="img-responsive img-fluid" src="{{ URL::to('uploads/add/add.jfif') }}" alt="">
+                            <a href="#" class="over-layer"><i class="fa fa-link"></i></a>
+                        </div>
+                        <div class="post-content">
+                            <h3 class="post-title">
+                            <a class="coolvetica-font lowercase mb-3 " href="#" style="font-size: 1.2rem; line-height: 2;">ChefMate</a>
+                            </h3>
+                            <p class="manrope-font">Practical cookware and kitchen tools for home cooks.</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-space col-xs-b35 col-md-b70"></div>
+
         <!-- Ideas Section -->
         <div class="bg-lemon">
 

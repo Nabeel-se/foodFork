@@ -137,7 +137,7 @@
     </div>
 
     <!-- TICKER -->
-    <div class="ticker">
+    {{-- <div class="ticker">
         <div class="ticker-inner">
             <span class="ticker-word pink">TOKO</span>
             <span class="ticker-word yellow">JUALAN</span>
@@ -172,12 +172,12 @@
             <span class="ticker-word yellow">YARD</span>
             <span class="ticker-sep">✦</span>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @push("styles")
     <style>
-        :root {
+        /* :root {
             --hot-pink: #ff2d78;
             --electric-yellow: #ffe600;
             --lime: #b8ff00;
@@ -255,6 +255,6 @@
             100% {
                 transform: translateX(-50%);
             }
-        }
+        } */
     </style>
 @endpush

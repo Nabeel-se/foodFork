@@ -23,6 +23,49 @@
         <div class="main-content">
             <x-app.topbar :title="$topbarHeading" :showSearch="$showSearchBar" />
 
+            <!-- TICKER -->
+
+            <div class="container-fluid mb-12">
+
+                <div class="ticker">
+                    <div class="ticker-inner">
+                        <span class="ticker-word pink">TOKO</span>
+                        <span class="ticker-word yellow">JUALAN</span>
+                        <span class="ticker-word cream">AISYAH</span>
+                        <span class="ticker-word pink">BERKUALITAS</span>
+                        <span class="ticker-word yellow">BAIK</span>
+                        <span class="ticker-word cream">DAN</span>
+                        <span class="ticker-word pink">BAGUS</span>
+                        <span class="ticker-sep">✦</span>
+                        <span class="ticker-word yellow">TOKO</span>
+                        <span class="ticker-word pink">JUALAN</span>
+                        <span class="ticker-word cream">AISYAH</span>
+                        <span class="ticker-word yellow">BERKUALITAS</span>
+                        <span class="ticker-word pink">BAIK</span>
+                        <span class="ticker-word cream">DAN</span>
+                        <span class="ticker-word yellow">BAGUS</span>
+                        <span class="ticker-sep">✦</span>
+                        <span class="ticker-word pink">TOKO</span>
+                        <span class="ticker-word yellow">JUALAN</span>
+                        <span class="ticker-word cream">AISYAH</span>
+                        <span class="ticker-word pink">BERKUALITAS</span>
+                        <span class="ticker-word yellow">BAIK</span>
+                        <span class="ticker-word cream">DAN</span>
+                        <span class="ticker-word pink">BAGUS</span>
+                        <span class="ticker-sep">✦</span>
+                        <span class="ticker-word yellow">MY</span>
+                        <span class="ticker-word pink">MILKSHAKE</span>
+                        <span class="ticker-word cream">BRINGS</span>
+                        <span class="ticker-word yellow">ALL THE</span>
+                        <span class="ticker-word pink">BOYS</span>
+                        <span class="ticker-word cream">TO THE</span>
+                        <span class="ticker-word yellow">YARD</span>
+                        <span class="ticker-sep">✦</span>
+                    </div>
+                </div>
+
+            </div>
+
             <main class="page-body">
                 @yield('content')
             </main>

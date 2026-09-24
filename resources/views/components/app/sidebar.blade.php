@@ -26,8 +26,9 @@
 
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">🍴</div>
-        <span class="logo-text">Food<span>Fork</span></span>
+        {{-- <div class="logo-icon">🍴</div> --}}
+        <a id="logo" href=""><img src="{{ URL::to('img/web-img/logo-1.png') }}" alt="" /></a>
+        {{-- <span class="logo-text">Food<span>Fork</span></span> --}}
     </div>
 
     <nav class="sidebar-nav">

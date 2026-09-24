@@ -14,6 +14,8 @@
     <link href="{{ URL::to('css/style.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ URL::to('css/swiper.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ URL::to('css/sumoselect.css') }}" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.theme.min.css" rel="stylesheet" type="text/css" />
     <link href="{{ URL::to('css/font-awesome.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ URL::to('css/custom.css') }}" rel="stylesheet" type="text/css" />
 
@@ -539,6 +541,24 @@
     <script src="{{ URL::to('js/jquery.classycountdown.js') }}"></script>
     <script src="{{ URL::to('js/jquery.knob.js') }}"></script>
     <script src="{{ URL::to('js/jquery.throttle.js') }}"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/owl.carousel.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#news-slider").owlCarousel({
+                items: 3,
+                itemsDesktop: [1199, 3],
+                itemsDesktopSmall: [980, 2],
+                itemsTablet: [768, 2],
+                itemsMobile: [479, 1],
+                pagination: false,
+                navigation: true,
+                navigationText: ["<i class='fa fa-angle-left'></i>", "<i class='fa fa-angle-right'></i>"],
+                autoPlay: true
+            });
+        });
+    </script>
 
     @stack("scripts")
 
